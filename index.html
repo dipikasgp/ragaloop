@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RagaLoop — live-code sitar · santoor · tabla</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Raga<span>Loop</span></h1>
+    <div class="files">
+      <select id="file-select" title="Your compositions"></select>
+      <button id="new-file" title="New composition">＋ New</button>
+      <button id="rename-file" class="icon" title="Rename composition">✎</button>
+      <button id="delete-file" class="icon" title="Delete composition">🗑</button>
+    </div>
+    <div class="transport">
+      <button id="play" class="primary" title="Play from the top">▶ Play</button>
+      <button id="apply" title="Apply edits without stopping (Cmd/Ctrl+Enter)">↻ Apply</button>
+      <button id="stop" title="Stop">■ Stop</button>
+      <span id="beat-lamp" class="lamp">·</span>
+      <span id="bpm-readout" class="bpm"></span>
+    </div>
+    <select id="examples" title="Load an example">
+      <option value="">examples…</option>
+    </select>
+  </header>
+
+  <main>
+    <section id="composer">
+      <div class="globals">
+        <label>tempo <input id="bpm-input" type="number" min="20" max="300" step="1"></label>
+        <label>key (Sa) <select id="key-input"></select></label>
+      </div>
+      <div class="track-head">
+        <span>instrument</span><span>pattern</span><span>vol</span><span>oct</span><span></span>
+      </div>
+      <div id="tracks"></div>
+      <button id="add-track">＋ add track</button>
+    </section>
+
+    <aside>
+      <h2>Cheatsheet</h2>
+      <dl>
+        <dt>Pattern</dt>
+        <dd>space-separated strokes/notes — each one is a beat. A track loops
+            at its own length, seamlessly. <code>|</code> bar lines are cosmetic.</dd>
+        <dt>Rests &amp; sustain</dt>
+        <dd><code>-</code> rest &nbsp; <code>~</code> hold previous</dd>
+        <dt>Subdivide a beat</dt>
+        <dd><code>[ti ra ki ta]</code> &nbsp; <code>[Sa Sa']</code> — nestable</dd>
+        <dt>Tabla bols</dt>
+        <dd><code>dha dhin na tin ta tun ge ke ka te ti ra ki kat</code></dd>
+        <dt>Sargam notes</dt>
+        <dd><code>Sa Re Ga Ma Pa Dha Ni</code><br>
+            komal: lowercase <code>re ga dha ni</code> · tivra: <code>Ma+</code><br>
+            octaves: <code>Sa'</code> up, <code>Sa,</code> down</dd>
+        <dt>Key (Sa)</dt>
+        <dd>moves the whole ensemble — the tabla re-tunes to ring on the same
+            Sa, like matching the lehra to the drum</dd>
+        <dt>vol &amp; oct</dt>
+        <dd><code>vol</code> 0–2 per track · <code>oct</code> shifts a melodic
+            track by whole octaves</dd>
+        <dt>Live coding</dt>
+        <dd>Edit while it plays, then <kbd>Cmd/Ctrl</kbd>+<kbd>Enter</kbd> — the loop
+            never stops, new notes land in phase.</dd>
+      </dl>
+    </aside>
+  </main>
+
+  <footer id="status"></footer>
+
+  <script src="js/parser.js"></script>
+  <script src="js/synth.js"></script>
+  <script src="js/scheduler.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
