@@ -42,13 +42,21 @@ santoor vol=0.8: [Sa Sa'] [Ga Sa'] [Pa Sa'] [Ga Sa'] | [Ma Sa'] [Ga Sa'] [Re Sa'
 sitar vol=0.9:   Sa' ~ [Ni Sa'] Ga' | Pa' ~ [Ga' Re'] Sa'
 `,
 
+  'Bansuri + tanpura (Yaman)': `bpm 72
+
+tanpura:           Pa, ~ ~ ~ | Sa ~ ~ ~ | Sa ~ ~ ~ | Sa, ~ ~ ~
+tabla vol=0.9:     dha dhin dhin dha | dha dhin dhin dha | dha tin tin ta | ta dhin dhin dha
+bansuri:           Ni, Re Ga Ma+ | Pa ~ ~ [Ma+ Ga] | Re Ga Ma+ Dha | Ni ~ Sa' ~
+harmonium vol=0.4: Sa ~ ~ ~ | Ga ~ ~ ~ | Pa ~ ~ ~ | Ni, ~ ~ ~
+`,
+
   'Tabla solo (tirakita)': `bpm 90
 
 tabla vol=1.3: dha - [ti ra ki ta] dha | [dha ge] [ti ra ki ta] dhin - | na tin [na ka] dhin | [dha ti] [dha ge] tin ta
 `,
 };
 
-const INSTRUMENT_NAMES = ['tabla', 'sitar', 'santoor'];
+const INSTRUMENT_NAMES = ['tabla', 'sitar', 'santoor', 'sarod', 'harmonium', 'esraj', 'sarangi', 'bansuri', 'tanpura'];
 const KEY_CHOICES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
 // map any accepted spelling to the canonical choice above
 const KEY_CANON = {
@@ -328,12 +336,17 @@ sitar oct=1: Sa - ga Ma | Pa - - -
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       engine = new SynthEngine(ctx);
+      const pitchedSets = [
+        ['sitar', 38, 81], ['santoor', 50, 93], ['sarod', 38, 74],
+        ['harmonium', 50, 86], ['esraj', 50, 86], ['sarangi', 50, 86],
+        ['bansuri', 50, 93], ['tanpura', 38, 62],
+      ];
       samplesReady = Promise.all([
         engine.loadTablaSamples(),
-        engine.loadPitchedSamples('sitar', 'samples/sitar/'),
-        engine.loadPitchedSamples('santoor', 'samples/santoor/', 'm4a', 50, 93),
-      ]).then(([tabla, sitar, santoor]) => {
-        const missing = [!tabla && 'tabla', !sitar && 'sitar', !santoor && 'santoor'].filter(Boolean);
+        ...pitchedSets.map(([inst, lo, hi]) => engine.loadPitchedSamples(inst, `samples/${inst}/`, 'm4a', lo, hi)),
+      ]).then(results => {
+        const names = ['tabla', ...pitchedSets.map(p => p[0])];
+        const missing = names.filter((_, i) => !results[i]);
         if (missing.length) setStatus(`note: ${missing.join(', ')} samples not found — using synth fallback`, false);
       });
       scheduler = new Scheduler(ctx, engine);

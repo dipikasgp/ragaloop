@@ -23,7 +23,7 @@ const RagaParser = (() => {
     'ke', 'ka', 'kat', 'te', 'ti', 'ra', 'ki', 'tit',
   ]);
 
-  const MELODIC = new Set(['sitar', 'santoor']);
+  const MELODIC = new Set(['sitar', 'santoor', 'sarod', 'harmonium', 'esraj', 'sarangi', 'bansuri', 'tanpura']);
   const INSTRUMENTS = new Set(['tabla', ...MELODIC]);
 
   const SARGAM_BASE = { sa: 0, re: 2, ga: 4, ma: 5, pa: 7, dha: 9, ni: 11 };

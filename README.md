@@ -99,6 +99,14 @@ your own samples, drop `<family>1.wav … <family>4.wav` files into
   rendered the same way from the same soundfont's Dulcimer preset (GM program
   15 — a hammered dulcimer, structurally the same instrument as a santoor).
   Karplus-Strong fallback if loading fails.
+- **Sarod, harmonium, esraj, sarangi, bansuri, tanpura** — rendered from the
+  same soundfont's closest GM voices: Steel Guitar (25), Reed Organ (20),
+  Fiddle (110), Viola (41), Flute (73), and a long-ring Sitar (104) for the
+  tanpura drone. Harmonium/esraj/sarangi/bansuri are *sustained* voices: they
+  hold for the note's written length (stretch with `~`) and then release;
+  plucked voices ring out naturally. Harmonium and reed-organ are genuinely
+  the same instrument family; the bowed pair and the sarod are honest
+  approximations — replace their sample folders to upgrade them.
 
 The sitar bus has a gentle sweetening EQ (warmth low-shelf, small cut at the
 pick-bite band, softened top) plus a slightly larger reverb send — see

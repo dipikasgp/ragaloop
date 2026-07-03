@@ -64,9 +64,19 @@ class SynthEngine {
     this.buses.tabla = mk(1.0, 0, 0.12);
     this.buses.sitar = mk(0.85, -0.25, 0.5, sitarSweet);
     this.buses.santoor = mk(0.6, 0.25, 0.3);
+    this.buses.sarod = mk(0.8, -0.35, 0.25);
+    this.buses.harmonium = mk(0.5, 0.1, 0.2);
+    this.buses.esraj = mk(0.6, 0.35, 0.35);
+    this.buses.sarangi = mk(0.65, -0.1, 0.35);
+    this.buses.bansuri = mk(0.6, 0.15, 0.3);
+    this.buses.tanpura = mk(0.4, 0, 0.3);
 
     // Sa = D for everything; each instrument sits in its natural register.
-    this.tonic = { sitar: 146.83, santoor: 293.66, tabla: 293.66 };
+    this.tonic = {
+      sitar: 146.83, santoor: 293.66, tabla: 293.66, sarod: 146.83,
+      harmonium: 293.66, esraj: 293.66, sarangi: 293.66, bansuri: 293.66,
+      tanpura: 146.83,
+    };
 
     // The `key` directive transposes Sa (semitones relative to D).
     this.keyOffset = 0;
@@ -78,10 +88,17 @@ class SynthEngine {
     this.samples = {};        // bol -> [AudioBuffer, …] (recorded tabla strokes)
     this.sampleCounter = {};  // bol -> round-robin index
     this.pitched = {};        // inst -> Map(midi -> AudioBuffer) (recorded notes)
-    this.saMidi = { sitar: 50, santoor: 62 };  // Sa = D3 / D4
+    this.saMidi = {
+      sitar: 50, santoor: 62, sarod: 50, harmonium: 62,
+      esraj: 62, sarangi: 62, bansuri: 62, tanpura: 50,
+    };
   }
 
   static NOTE_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+
+  // Bowed/blown/reed voices sustain for the note's written length, then
+  // release; plucked voices just ring out their natural decay.
+  static SUSTAINED = new Set(['harmonium', 'esraj', 'sarangi', 'bansuri']);
 
   // Recorded tabla strokes. Each bol maps to a sample family on disk
   // (samples/tabla/<family>N.wav, 4 variants each, round-robined so
@@ -171,8 +188,11 @@ class SynthEngine {
         ? Math.pow(2, (this.saMidi[inst] + this.keyOffset + event.semiTo - best) / 12) * detune
         : null;
       // Sitar: shave the pick transient with a 20 ms swell — legato feel.
-      const softAttack = inst === 'sitar' ? 0.02 : 0;
-      this._play(notes.get(best), inst, time, rate, accent, glideRate, durSec, softAttack);
+      // Sustained voices get a gentler bow/breath onset and a timed release.
+      const sustained = SynthEngine.SUSTAINED.has(inst);
+      const softAttack = inst === 'sitar' ? 0.02 : sustained ? 0.04 : 0;
+      const holdSec = sustained ? durSec : 0;
+      this._play(notes.get(best), inst, time, rate, accent, glideRate, durSec, softAttack, holdSec);
       return;
     }
     if (inst === 'tabla') {
@@ -198,7 +218,7 @@ class SynthEngine {
     this._play(buf, inst, time, detune * keyRate, accent);
   }
 
-  _play(buffer, inst, time, rate = 1, gain = 1, glideRate = null, durSec = 0.5, softAttack = 0) {
+  _play(buffer, inst, time, rate = 1, gain = 1, glideRate = null, durSec = 0.5, softAttack = 0, holdSec = 0) {
     const src = this.ctx.createBufferSource();
     src.buffer = buffer;
     src.playbackRate.value = rate;
@@ -213,6 +233,13 @@ class SynthEngine {
       g.gain.linearRampToValueAtTime(gain, time + softAttack);
     } else {
       g.gain.value = gain;
+    }
+    if (holdSec > 0) {
+      // sustained voice: hold for the written note length, then release
+      const release = 0.12;
+      g.gain.setValueAtTime(gain, time + holdSec);
+      g.gain.linearRampToValueAtTime(0.0001, time + holdSec + release);
+      src.stop(time + holdSec + release + 0.05);
     }
     src.connect(g).connect(this.buses[inst]);
     src.start(time);
