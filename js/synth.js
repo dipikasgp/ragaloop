@@ -234,15 +234,16 @@ class SynthEngine {
     } else {
       g.gain.value = gain;
     }
+    src.connect(g).connect(this.buses[inst]);
+    src.start(time);
     if (holdSec > 0) {
       // sustained voice: hold for the written note length, then release
+      // (stop() must be scheduled after start() or the browser throws)
       const release = 0.12;
       g.gain.setValueAtTime(gain, time + holdSec);
       g.gain.linearRampToValueAtTime(0.0001, time + holdSec + release);
       src.stop(time + holdSec + release + 0.05);
     }
-    src.connect(g).connect(this.buses[inst]);
-    src.start(time);
   }
 
   // Stereo impulse response: exponentially decaying noise = small hall.
