@@ -338,7 +338,7 @@ sitar oct=1: Sa - ga Ma | Pa - - -
       });
       scheduler = new Scheduler(ctx, engine);
       scheduler.onBeat = beat => {
-        beatEl.textContent = String(beat % 16 + 1);
+        beatEl.textContent = String(beat % scheduler.cycleBeats + 1);
         beatEl.classList.remove('pulse');
         void beatEl.offsetWidth;          // restart the CSS animation
         beatEl.classList.add('pulse');

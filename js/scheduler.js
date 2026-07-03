@@ -56,6 +56,8 @@ class Scheduler {
   }
 
   _setTracks(tracks, fromBeat) {
+    // the taal cycle for display = the longest track's loop length
+    this.cycleBeats = tracks.length ? Math.max(...tracks.map(t => t.length)) : 16;
     this.tracks = tracks.map(t => {
       const cycle = Math.floor(fromBeat / t.length);
       const inCycle = fromBeat - cycle * t.length;
